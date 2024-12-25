@@ -30,7 +30,7 @@ public class EventTimer extends JavaPlugin implements Listener {
     public File itemsFile;
     private static ScheduledTask timerTask;
     private static long startTime;
-    private static long duration = 600; // Default duration: 100 minutes in seconds
+    private static long duration; // Default duration: 100 minutes in seconds
 
     public static EventTimer getPlugin() {
         return plugin;
@@ -55,6 +55,10 @@ public class EventTimer extends JavaPlugin implements Listener {
         saveDefaultConfig();
 
         setDuration(getConfig().getLong("set-time", 60));
+
+        if (plugin.getConfig().getBoolean("activated")) {
+            continueTimer();
+        }
     }
 
     @Override
@@ -64,7 +68,12 @@ public class EventTimer extends JavaPlugin implements Listener {
         }
     }
 
-    public static boolean TimerEnabled = false;
+    public static boolean TimerEnabled() {
+        return plugin.getConfig().getBoolean("timer-running");
+    }
+
+    public static boolean TimerEnabled = TimerEnabled();
+
 
     public static void startTimer() {
         if (TimerEnabled) return;
@@ -77,6 +86,38 @@ public class EventTimer extends JavaPlugin implements Listener {
         plugin.saveConfig();
 
         // Folia-compatible scheduling
+        timerTask = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, (task) -> {
+            if (!TimerEnabled) {
+                task.cancel();
+                return;
+            }
+
+            long elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000;
+            long remainingSeconds = duration - elapsedSeconds;
+
+            if (remainingSeconds <= 0) {
+                stopTimer();
+                plugin.getServer().broadcast(net.kyori.adventure.text.Component.text("§6Timer has ended!"));
+                return;
+            }
+
+            String timeDisplay = formatTime(remainingSeconds);
+
+            // Update timer display for all players using global scheduler
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                // Schedule the action bar update in the player's region
+                plugin.getServer().getRegionScheduler().execute(plugin, player.getLocation(), () -> {
+                    player.spigot().sendMessage(
+                            ChatMessageType.ACTION_BAR,
+                            new TextComponent("§6Verbleibende Zeit: §f" + timeDisplay)
+                    );
+                });
+            }
+        }, 1, 1);
+    }
+
+
+    public static void continueTimer() { // continues timer after server restart
         timerTask = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, (task) -> {
             if (!TimerEnabled) {
                 task.cancel();
