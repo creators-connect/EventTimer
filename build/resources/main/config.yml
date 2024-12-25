@@ -1,0 +1,11 @@
+# CONFIG.yml
+# Not sure what is going to be here yet.
+
+# ADD COUNTDOWN TIMER
+# ADD COUNTING TIMER
+
+# EDITING ANYTHING BELOW HERE MIGHT BREAK THE PLUGIN
+running:
+start-time:
+end-time:
+set-time:

@@ -1,0 +1,17 @@
+name: EventTimer
+version: '${version}'
+main: at.querlenker.eventtimer.EventTimer
+api-version: '1.20'  # Hardcoded major.minor version
+folia-supported: true
+authors: [Querlenker]
+description: A timer plugin for events
+commands:
+  timer:
+    description: Main command for the EventTimer plugin
+    usage: /timer <start|stop|set> [minutes]
+    aliases: [et]
+    permission: eventtimer.use
+permissions:
+  eventtimer.use:
+    description: Allows use of timer commands
+    default: op
