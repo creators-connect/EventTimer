@@ -30,7 +30,7 @@ public class EventTimer extends JavaPlugin implements Listener {
     public File itemsFile;
     private static ScheduledTask timerTask;
     private static long startTime;
-    private static long duration = 6000; // Default duration: 100 minutes in seconds
+    private static long duration = 600; // Default duration: 100 minutes in seconds
 
     public static EventTimer getPlugin() {
         return plugin;
@@ -54,9 +54,7 @@ public class EventTimer extends JavaPlugin implements Listener {
         this.getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        if (!(getConfig().getBoolean("timer-running", false))) {
-            setDuration(getConfig().getLong("set-time", 60));
-        }
+        setDuration(getConfig().getLong("set-time", 60));
     }
 
     @Override
