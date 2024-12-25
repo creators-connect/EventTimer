@@ -54,11 +54,9 @@ public class EventTimer extends JavaPlugin implements Listener {
         this.getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        if (getConfig().getBoolean("timer-running", false)) {
-            startTime = getConfig().getLong("start-time", System.currentTimeMillis());
-            startTimer();
+        if (!(getConfig().getBoolean("timer-running", false))) {
+            setDuration(getConfig().getLong("set-time", 60));
         }
-        setDuration(getConfig().getLong("set-time", 60));
     }
 
     @Override
@@ -104,7 +102,7 @@ public class EventTimer extends JavaPlugin implements Listener {
                 plugin.getServer().getRegionScheduler().execute(plugin, player.getLocation(), () -> {
                     player.spigot().sendMessage(
                             ChatMessageType.ACTION_BAR,
-                            new TextComponent("§6Time Remaining: §f" + timeDisplay)
+                            new TextComponent("§6Verbleibende Zeit: §f" + timeDisplay)
                     );
                 });
             }
