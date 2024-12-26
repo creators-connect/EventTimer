@@ -16,29 +16,21 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class EventTimer extends JavaPlugin implements Listener {
     public List<Material> remaining = new ArrayList<>();
     public List<Material> remainingmobs = new ArrayList<>();
 
     @Getter
-    public static EventTimer plugin;
+    private static EventTimer plugin;
 
-    public boolean enabled = this.getConfig().getBoolean("activated");
+    private boolean enabled;
+    private static boolean timerEnabled = false;
     public FileConfiguration itemsConfig;
     public File itemsFile;
     private static ScheduledTask timerTask;
     private static long startTime;
-    private static long duration; // Default duration: 100 minutes in seconds
-
-    public static EventTimer getPlugin() {
-        return plugin;
-    }
-
-    public static void setPlugin(EventTimer plugin) {
-        EventTimer.plugin = plugin;
-    }
+    private static long duration;
 
     @Override
     public void onLoad() {
@@ -47,16 +39,16 @@ public class EventTimer extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginManager().registerEvents(new CommandTabListener(), this);
-
-        getCommand("timer").setExecutor(new TimerCommand());
-        this.getConfig().options().copyDefaults();
+        enabled = this.getConfig().getBoolean("activated", false);
+        getConfig().options().copyDefaults();
         saveDefaultConfig();
 
+        Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new CommandTabListener(), this);
+        getCommand("timer").setExecutor(new TimerCommand());
         setDuration(getConfig().getLong("set-time", 60));
 
-        if (plugin.getConfig().getBoolean("activated")) {
+        if (getConfig().getBoolean("timer-running", false)) {
             continueTimer();
         }
     }
@@ -68,26 +60,22 @@ public class EventTimer extends JavaPlugin implements Listener {
         }
     }
 
-    public static boolean TimerEnabled() {
-        return plugin.getConfig().getBoolean("timer-running");
+    public static boolean isTimerEnabled() {
+        return timerEnabled;
     }
 
-    public static boolean TimerEnabled = TimerEnabled();
-
-
     public static void startTimer() {
-        if (TimerEnabled) return;
+        if (timerEnabled) return;
 
-        TimerEnabled = true;
+        timerEnabled = true;
         startTime = System.currentTimeMillis();
 
         plugin.getConfig().set("timer-running", true);
         plugin.getConfig().set("start-time", startTime);
         plugin.saveConfig();
 
-        // Folia-compatible scheduling
         timerTask = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, (task) -> {
-            if (!TimerEnabled) {
+            if (!timerEnabled) {
                 task.cancel();
                 return;
             }
@@ -103,9 +91,7 @@ public class EventTimer extends JavaPlugin implements Listener {
 
             String timeDisplay = formatTime(remainingSeconds);
 
-            // Update timer display for all players using global scheduler
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                // Schedule the action bar update in the player's region
                 plugin.getServer().getRegionScheduler().execute(plugin, player.getLocation(), () -> {
                     player.spigot().sendMessage(
                             ChatMessageType.ACTION_BAR,
@@ -116,10 +102,11 @@ public class EventTimer extends JavaPlugin implements Listener {
         }, 1, 1);
     }
 
-
-    public static void continueTimer() { // continues timer after server restart
+    public static void continueTimer() {
+        timerEnabled = true;
         timerTask = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, (task) -> {
-            if (!TimerEnabled) {
+            startTime = plugin.getConfig().getLong("start-time");
+            if (!timerEnabled) {
                 task.cancel();
                 return;
             }
@@ -135,9 +122,7 @@ public class EventTimer extends JavaPlugin implements Listener {
 
             String timeDisplay = formatTime(remainingSeconds);
 
-            // Update timer display for all players using global scheduler
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                // Schedule the action bar update in the player's region
                 plugin.getServer().getRegionScheduler().execute(plugin, player.getLocation(), () -> {
                     player.spigot().sendMessage(
                             ChatMessageType.ACTION_BAR,
@@ -149,9 +134,9 @@ public class EventTimer extends JavaPlugin implements Listener {
     }
 
     public static void stopTimer() {
-        if (!TimerEnabled) return;
+        if (!timerEnabled) return;
 
-        TimerEnabled = false;
+        timerEnabled = false;
         if (timerTask != null) {
             timerTask.cancel();
         }
@@ -160,7 +145,6 @@ public class EventTimer extends JavaPlugin implements Listener {
         plugin.getConfig().set("start-time", null);
         plugin.saveConfig();
 
-        // Clear action bar using global scheduler
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             plugin.getServer().getRegionScheduler().execute(plugin, player.getLocation(), () -> {
                 player.spigot().sendMessage(
@@ -179,15 +163,12 @@ public class EventTimer extends JavaPlugin implements Listener {
     }
 
     public static void setDuration(long minutes) {
+        plugin.getConfig().set("set-time", minutes);
+        plugin.saveConfig();
         duration = minutes * 60;
     }
 
     public static long getDuration() {
         return duration / 60;
     }
-
-    // TODO: RESTRICT FEATURES WHEN TIMER IS NOT RUNNING / LISTENER, EVENT-HANDLERS
 }
-
-
-

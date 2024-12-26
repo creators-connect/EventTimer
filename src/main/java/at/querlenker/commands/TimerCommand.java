@@ -5,6 +5,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.Locale;
+
 public class TimerCommand implements CommandExecutor {
 
     @Override
@@ -24,11 +26,29 @@ public class TimerCommand implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
                     return true;
                 }
+            } else if (args[0].toLowerCase().startsWith("set")) {
+                if (sender.hasPermission("eventtimer.set")) {
+                    sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN + "Usage: " + ChatColor.GOLD
+                            + "/timer set <minutes>");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                }
+                return true;
+            }
+            }
+        if (args.length == 2) {
+            if (args[0].toLowerCase().startsWith("set")) {
+                if (sender.hasPermission("eventtimer.set")) {
+                    return new SetCommand().onCommand(sender, command, label, args);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                }
+                return true;
             }
         }
 
-        sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN + "Usage: " + ChatColor.GOLD
-                + "/timer /start/stop");
+            sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN + "Usage: " + ChatColor.GOLD
+                + "/timer set/start/stop");
         return true;
     }
 }

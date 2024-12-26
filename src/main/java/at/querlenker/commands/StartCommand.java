@@ -10,15 +10,14 @@ public class StartCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-            if (EventTimer.TimerEnabled) {
-                sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN
-                        + "The Timer is already running!");
-            } else {
-                EventTimer.startTimer();
-                sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN
-                        + "Successfully started the Timer!");
-            }
-            return true;
+        if (EventTimer.isTimerEnabled()) {
+            sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN
+                    + "The Timer is already running!");
+        } else {
+            EventTimer.startTimer();
+            sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN
+                    + "Successfully started the Timer!");
         }
-
+        return true;
+    }
 }

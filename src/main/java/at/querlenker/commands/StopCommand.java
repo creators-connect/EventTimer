@@ -10,7 +10,7 @@ public class StopCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!EventTimer.TimerEnabled) {
+        if (!EventTimer.isTimerEnabled()) {
             sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN
                     + "The Timer is not running!");
         } else {

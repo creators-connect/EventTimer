@@ -12,6 +12,7 @@ public class CommandTabListener implements Listener {
     public CommandTabListener() {
         commands.add("start");
         commands.add("stop");
+        commands.add("set");
     }
 
     @EventHandler
