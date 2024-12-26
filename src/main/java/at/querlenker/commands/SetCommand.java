@@ -14,7 +14,7 @@ public class SetCommand implements CommandExecutor {
             try {
                 long minutes = Long.parseLong(args[1]);
                 EventTimer.setDuration(minutes);
-                sender.sendMessage(ChatColor.GREEN + "Der Timer wurde auf" + minutes + " Minuten gesetzt.");
+                sender.sendMessage(ChatColor.AQUA + "[EventTimer] " + ChatColor.GREEN + "Der Timer wurde auf " + minutes + " Minuten gesetzt.");
             } catch (NumberFormatException e) {
                 sender.sendMessage(ChatColor.RED + "Invalid number format. Please enter a valid number of minutes.");
             }

@@ -116,7 +116,7 @@ public class EventTimer extends JavaPlugin implements Listener {
 
             if (remainingSeconds <= 0) {
                 stopTimer();
-                plugin.getServer().broadcast(net.kyori.adventure.text.Component.text("§6Timer has ended!"));
+                plugin.getServer().broadcast(net.kyori.adventure.text.Component.text("§6Die Zeit ist vorbei!"));
                 return;
             }
 
